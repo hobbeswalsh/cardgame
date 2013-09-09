@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"os/exec"
 	"time"
-
 )
 
 var R = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -16,6 +15,10 @@ func sum(a []int32) (s int32) {
 	}
 	return
 }
+
+/*
+	No, this isn't portable. Sorry!
+*/
 
 func Get_uuid() string {
 	out, err := exec.Command("/usr/bin/uuidgen").Output()

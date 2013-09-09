@@ -9,6 +9,11 @@ import (
 	"strconv"
 )
 
+type PlayResult struct {
+	ChosenCard    int32    `json:chosenCard`
+	GameRemaining CardGame `json:gameRemaining`
+}
+
 func throw_json_error(rw http.ResponseWriter, errorstr string) {
 	rw.WriteHeader(400)
 	rw.Header().Set("Content-Type", "text/json")
@@ -19,12 +24,19 @@ func throw_json_error(rw http.ResponseWriter, errorstr string) {
 	rw.Write(j)
 }
 
+func return_json_success(rw http.ResponseWriter, i interface{}) {
+	rw.WriteHeader(200)
+	rw.Header().Set("Content-Type", "text/json")
+	j, _ := json.Marshal(i)
+	rw.Write(j)
+}
+
+/*
+  RootHandler handles requests to fetch whole games.
+*/
 type RootHandler struct{}
 
 func (h *RootHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if check_url("/", req.URL.Path) == false {
-		return
-	}
 
 	session := seshcookie.Session.Get(req)
 
@@ -66,12 +78,12 @@ func (h *RootHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 }
 
+/*
+ PlayHandler handles plays.
+*/
 type PlayHandler struct{}
 
 func (h *PlayHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if !check_url("/play", req.URL.Path) {
-		return
-	}
 	session := seshcookie.Session.Get(req)
 
 	uuid, _ := session["uuid"].(string)
@@ -82,16 +94,18 @@ func (h *PlayHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	throw_json_error(rw, "can't use this endpoint yet.")
-	return
-	// // func (r *Request) PostFormValue(key string) string
-
-	// rw.WriteHeader(200)
-	// rw.Header().Set("Content-Type", "text/plain")
-	// var output []byte
-	// strconv.AppendQuoteToASCII(output, "Well hello there!\n")
-
-	// rw.Write(output)
+	deck_num, err := strconv.ParseInt(deck, 10, 0)
+	if err != nil {
+		throw_json_error(rw, fmt.Sprintf("Couldn't convert %s to an integer", deck))
+		return
+	}
+	card_chosen, remaining_game, err := MakePlay(uuid, int(deck_num))
+	if err != nil {
+		throw_json_error(rw, fmt.Sprintf("Could not make a play for some reason: %s", err))
+		return
+	}
+	play := PlayResult{card_chosen, remaining_game}
+	return_json_success(rw, play)
 }
 
 func check_url(substr, str string) bool {

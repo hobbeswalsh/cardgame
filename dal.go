@@ -4,14 +4,34 @@ import (
 	"fmt"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+	"os"
 )
 
-var url = "mongodb://localhost"
-var session, err = mgo.Dial(url)
+var (
+	mgoSession   *mgo.Session
+	databaseName = "myDB"
+)
 
-func get_session() *mgo.Collection {
-	c := session.DB("cardgame").C("games")
-	return c
+func get_session() mgo.Collection {
+	var username = os.Getenv("CARDGAME_USER")
+	var password = os.Getenv("CARDGAME_PASS")
+
+	if mgoSession == nil {
+		var url = fmt.Sprintf("mongodb://%s:%s@ds027738.mongolab.com:27738/cardgame", username, password)
+
+		// var url = "mongodb://cgclient:c4rdg4m3@ds027738.mongolab.com:27738/cardgame"
+		var err error
+		fmt.Println(url)
+		mgoSession, err = mgo.Dial(url)
+
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+	sesh := mgoSession.Clone()
+	return *sesh.DB("cardgame").C("games")
+
 }
 
 func GetGameByUUID(s string) (CardGame, error) {

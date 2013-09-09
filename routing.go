@@ -11,11 +11,11 @@ func CreateRoutes() bool {
 	f, _ := os.Open("/dev/urandom")
 	_, _ = f.Read(key)
 	keyString := string(key)
-	http.Handle("/", seshcookie.NewSessionHandler(
+	http.Handle("/api/v1/game", seshcookie.NewSessionHandler(
 		&RootHandler{},
 		keyString,
 		nil))
-	http.Handle("/play", seshcookie.NewSessionHandler(
+	http.Handle("/api/v1/play", seshcookie.NewSessionHandler(
 		&PlayHandler{},
 		keyString,
 		nil))
