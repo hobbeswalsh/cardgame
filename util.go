@@ -23,7 +23,7 @@ func sum(a []int32) (s int32) {
 
 var Random *os.File
 
-func init() {
+func Init() {
 	f, err := os.Open("/dev/urandom")
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +32,7 @@ func init() {
 }
 
 func uuid() string {
-	init()
+	Init()
 	b := make([]byte, 16)
 	Random.Read(b)
 	return fmt.Sprintf("%x-%x-%x-%x-%x",
