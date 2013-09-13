@@ -1,9 +1,10 @@
 package cardgame
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
-	"os/exec"
+	"os"
 	"time"
 )
 
@@ -20,12 +21,26 @@ func sum(a []int32) (s int32) {
 	No, this isn't portable. Sorry!
 */
 
-func Get_uuid() string {
-	out, err := exec.Command("/usr/bin/uuidgen").Output()
+var Random *os.File
+
+func init() {
+	f, err := os.Open("/dev/urandom")
 	if err != nil {
 		log.Fatal(err)
 	}
-	return string(out[:len(out)-1])
+	Random = f
+}
+
+func uuid() string {
+	init()
+	b := make([]byte, 16)
+	Random.Read(b)
+	return fmt.Sprintf("%x-%x-%x-%x-%x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+}
+
+func Get_uuid() string {
+	return uuid()
 }
 
 func Get_winner_list(c chan []int32) {
