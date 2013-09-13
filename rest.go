@@ -27,6 +27,7 @@ func throw_json_error(rw http.ResponseWriter, errorstr string) {
 func return_json_success(rw http.ResponseWriter, i interface{}) {
 	rw.WriteHeader(200)
 	rw.Header().Set("Content-Type", "text/json")
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 	j, _ := json.Marshal(i)
 	rw.Write(j)
 }
