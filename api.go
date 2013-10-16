@@ -20,6 +20,11 @@ func MakePlay(s string, i int) (int32, CardGame, error) {
 	card := deck.Values[0]
 	deck.Values = deck.Values[1:]
 	cg.Decks[i] = deck
+	if deck.Risky() {
+		// do nothing now, but at a later date, log a risky play.
+	} else {
+		// do nothing now, but at a later date, log a safe play.
+	}
 	if len(deck.Values) == 0 {
 		cg.Regenerate()
 		SaveGame(cg)

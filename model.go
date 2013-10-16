@@ -41,6 +41,10 @@ func (cg *CardGame) Regenerate() bool {
 	return true
 }
 
+func (d *Deck) Risky() bool {
+	return sum(d.Values) <= 0
+}
+
 func (cg *CardGame) Shuffle() bool {
 	decks := cg.Decks
 	for i := range decks {

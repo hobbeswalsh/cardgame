@@ -46,14 +46,12 @@ func (h *RootHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		cg, err := MakeNewGame()
 		if err == nil {
 			session["uuid"] = cg.Uuid
-			rw.WriteHeader(200)
-			rw.Header().Set("Content-Type", "text/json")
 			j, err := json.Marshal(cg)
 			if err != nil {
 				throw_json_error(rw, "Couldn't marshal new cardgame into JSON")
 				return
 			} else {
-				rw.Write(j)
+				return_json_success(rw, j)
 			}
 		}
 		return
@@ -65,16 +63,13 @@ func (h *RootHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	rw.WriteHeader(200)
-	rw.Header().Set("Content-Type", "text/json")
-
 	j, err := json.Marshal(cg)
 	if err != nil {
 		errtext := fmt.Sprintf("Couldn't marshal cardgame %s into JSON", uuid)
 		throw_json_error(rw, errtext)
 		return
 	} else {
-		rw.Write(j)
+		return_json_success(rw, j)
 	}
 
 }
@@ -90,6 +85,7 @@ func (h *PlayHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	uuid, _ := session["uuid"].(string)
 
 	deck := req.FormValue("deck")
+
 	if deck == "" {
 		throw_json_error(rw, uuid)
 		return
